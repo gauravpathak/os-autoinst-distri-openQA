@@ -28,6 +28,11 @@ systemctl status --no-pager openqa-worker@1
 EOF
     assert_script_run($_) foreach (split /\n/, $worker_setup);
     assert_script_run "systemctl enable --now openqa-worker@2" if get_var('FULL_MM_TEST');
+    if (script_run('systemctl is-active NetworkManager.service') == 0) {
+        assert_script_run('systemctl restart NetworkManager');
+	script_run('ovs-vsctl show');
+	script_run('ip a s $(ovs-vsctl list-br)');
+    }
     save_screenshot;
     clear_root_console;
 }
